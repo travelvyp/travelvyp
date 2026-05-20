@@ -1,9 +1,12 @@
 [build]
-  command = "npm run build"
+  # prisma generate DEBE correr antes del build (genera el client)
+  # db:push y db:seed pueden fallar sin bloquear el build (|| true)
+  command = "npm run db:generate && (npm run db:push && npm run db:seed || echo 'DB ops skipped') && npm run build"
   publish = ".next"
 
 [build.environment]
   NODE_VERSION = "20"
+  NPM_FLAGS = "--legacy-peer-deps"
 
 [[plugins]]
   package = "@netlify/plugin-nextjs"

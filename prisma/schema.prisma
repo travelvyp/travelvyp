@@ -1,0 +1,368 @@
+// =============================================================================
+// TravelVYP — Prisma Schema
+// Arquitectura definida en Task 3 — Database Design
+// =============================================================================
+
+generator client {
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "rhel-openssl-1.0.x", "debian-openssl-1.1.x"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// =============================================================================
+// CAPA 1 — PLATAFORMA SAAS
+// =============================================================================
+
+model Agency {
+  id             String     @id @default(uuid())
+  name           String
+  slug           String     @unique
+  logoUrl        String?
+  primaryColor   String?    @default("#3B82F6")
+  secondaryColor String?    @default("#10B981")
+  contactEmail   String?
+  contactPhone   String?
+  country        String?
+  timezone       String     @default("America/New_York")
+  plan           AgencyPlan @default(STARTER)
+  createdAt      DateTime   @default(now())
+  updatedAt      DateTime   @updatedAt
+  deletedAt      DateTime?
+
+  // Relations
+  users            User[]
+  trips            Trip[]
+  passengers       Passenger[]
+  serviceTemplates ServiceTemplate[]
+
+  @@map("agencies")
+}
+
+enum AgencyPlan {
+  FREE
+  STARTER
+  PRO
+  ENTERPRISE
+}
+
+model User {
+  id           String   @id @default(uuid())
+  agencyId     String
+  email        String   @unique
+  fullName     String
+  role         UserRole @default(AGENT)
+  avatarUrl    String?
+  passwordHash String?
+  isActive     Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  deletedAt    DateTime?
+
+  // Relations
+  agency Agency @relation(fields: [agencyId], references: [id])
+  trips  Trip[]
+
+  @@map("users")
+}
+
+enum UserRole {
+  OWNER
+  ADMIN
+  AGENT
+  VIEWER
+}
+
+// =============================================================================
+// CAPA 2 — BIBLIOTECA DE CONOCIMIENTO
+// Templates, bloques base, información de proveedores
+// =============================================================================
+
+/// Catálogo de tipos de módulo del sistema (FLIGHT, HOTEL, THEME_PARK, CAR_RENTAL)
+model ModuleType {
+  id          String  @id @default(uuid())
+  code        String  @unique // FLIGHT | HOTEL | THEME_PARK | CAR_RENTAL
+  name        String
+  icon        String
+  colorAccent String
+  isActive    Boolean @default(true)
+  sortOrder   Int     @default(0)
+
+  // Relations
+  blockDefinitions BlockDefinition[]
+  serviceTemplates ServiceTemplate[]
+  tripServices     TripService[]
+
+  @@map("module_types")
+}
+
+/// Templates pre-configurados por proveedor (Grand Floridian, Magic Kingdom, etc.)
+model ServiceTemplate {
+  id           String  @id @default(uuid())
+  moduleTypeId String
+  name         String
+  provider     String?
+  category     String?
+  location     String?
+  description  String?
+  thumbnailUrl String?
+  /// Datos flexibles del proveedor: { "resort_level": "deluxe", "has_early_entry": true }
+  metadata     Json    @default("{}")
+  isSystem     Boolean @default(true)  // true = sistema global, false = custom de agencia
+  agencyId     String? // null = sistema, uuid = agencia específica
+  isActive     Boolean @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  // Relations
+  moduleType     ModuleType      @relation(fields: [moduleTypeId], references: [id])
+  agency         Agency?         @relation(fields: [agencyId], references: [id])
+  templateBlocks TemplateBlock[]
+  tripServices   TripService[]
+
+  @@map("service_templates")
+}
+
+/// Biblioteca de tipos de bloque disponibles por módulo
+model BlockDefinition {
+  id           String  @id @default(uuid())
+  moduleTypeId String
+  code         String  @unique // HOTEL_TRANSPORT | PARK_EARLY_ENTRY | FLIGHT_BAGGAGE
+  name         String
+  description  String?
+  defaultContent String?
+  icon         String?
+  isOptional   Boolean @default(true)
+  sortOrder    Int     @default(0)
+
+  // Relations
+  moduleType     ModuleType      @relation(fields: [moduleTypeId], references: [id])
+  templateBlocks TemplateBlock[]
+  serviceBlocks  ServiceBlock[]
+
+  @@map("block_definitions")
+}
+
+/// Contenido específico de cada bloque para un template determinado
+model TemplateBlock {
+  id                     String  @id @default(uuid())
+  templateId             String
+  blockDefinitionId      String
+  title                  String
+  content                String  @db.Text
+  contentShort           String?
+  isActiveByDefault      Boolean @default(true)
+  isHighlightedByDefault Boolean @default(false)
+  sortOrder              Int     @default(0)
+
+  // Relations
+  template        ServiceTemplate  @relation(fields: [templateId], references: [id])
+  blockDefinition BlockDefinition  @relation(fields: [blockDefinitionId], references: [id])
+  serviceBlocks   ServiceBlock[]
+
+  @@map("template_blocks")
+}
+
+// =============================================================================
+// CAPA 3 — TRABAJO OPERATIVO
+// Viajes reales, pasajeros, servicios e itinerarios
+// =============================================================================
+
+model Passenger {
+  id             String        @id @default(uuid())
+  agencyId       String
+  firstName      String
+  lastName       String
+  email          String?
+  phone          String?
+  passportNumber String?
+  passportExpiry DateTime?
+  nationality    String?
+  dateOfBirth    DateTime?
+  passengerType  PassengerType @default(ADULT)
+  /// Preferencias y notas: { "dietary": "vegetarian", "accessibility": false }
+  preferences    Json          @default("{}")
+  notes          String?
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+  deletedAt      DateTime?
+
+  // Relations
+  agency         Agency          @relation(fields: [agencyId], references: [id])
+  tripPassengers TripPassenger[]
+
+  @@map("passengers")
+}
+
+enum PassengerType {
+  ADULT
+  CHILD
+  INFANT
+}
+
+model Trip {
+  id              String          @id @default(uuid())
+  agencyId        String
+  createdById     String
+  name            String
+  destination     String?
+  startDate       DateTime?
+  endDate         DateTime?
+  dateFlexibility DateFlexibility @default(FIXED)
+  dateNotes       String?
+  status          TripStatus      @default(DRAFT)
+  internalNotes   String?
+  tags            String[]        @default([])
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+  deletedAt       DateTime?
+
+  // Relations
+  agency         Agency          @relation(fields: [agencyId], references: [id])
+  createdBy      User            @relation(fields: [createdById], references: [id])
+  tripPassengers TripPassenger[]
+  tripServices   TripService[]
+  itineraries    Itinerary[]
+
+  @@map("trips")
+}
+
+enum TripStatus {
+  DRAFT
+  ACTIVE
+  CONFIRMED
+  COMPLETED
+  ARCHIVED
+}
+
+enum DateFlexibility {
+  FIXED
+  FLEXIBLE
+  TBD
+}
+
+/// Tabla de unión Trip ↔ Passenger (many-to-many)
+model TripPassenger {
+  id          String            @id @default(uuid())
+  tripId      String
+  passengerId String
+  role        TripPassengerRole @default(COMPANION)
+  addedAt     DateTime          @default(now())
+
+  // Relations
+  trip      Trip      @relation(fields: [tripId], references: [id])
+  passenger Passenger @relation(fields: [passengerId], references: [id])
+
+  @@unique([tripId, passengerId])
+  @@map("trip_passengers")
+}
+
+enum TripPassengerRole {
+  LEAD
+  COMPANION
+  CHILD
+}
+
+/// Instancia concreta de un servicio dentro de un viaje
+model TripService {
+  id                 String        @id @default(uuid())
+  tripId             String
+  moduleTypeId       String
+  templateId         String?
+  name               String
+  status             ServiceStatus @default(PENDING)
+  confirmationNumber String?
+  sortOrder          Int           @default(0)
+  /// Datos específicos del módulo:
+  /// Vuelo: { airline, flightNumber, origin, destination, departure, arrival, terminal }
+  /// Hotel: { checkinDate, checkoutDate, roomType, mealPlan, adults, children }
+  /// Parque: { park, visitDate, ticketType, hasLightningLane, parkHoursOpen }
+  /// Auto: { company, category, pickupDate, dropoffDate, pickupLocation }
+  serviceData        Json          @default("{}")
+  internalNotes      String?
+  createdAt          DateTime      @default(now())
+  updatedAt          DateTime      @updatedAt
+  deletedAt          DateTime?
+
+  // Relations
+  trip          Trip             @relation(fields: [tripId], references: [id])
+  moduleType    ModuleType       @relation(fields: [moduleTypeId], references: [id])
+  template      ServiceTemplate? @relation(fields: [templateId], references: [id])
+  serviceBlocks ServiceBlock[]
+
+  @@map("trip_services")
+}
+
+enum ServiceStatus {
+  PENDING
+  CONFIRMED
+  CANCELLED
+}
+
+/// Bloque de contenido editable dentro de un servicio del viaje
+/// Generado a partir de TemplateBlock — siempre es una copia independiente
+model ServiceBlock {
+  id                String      @id @default(uuid())
+  tripServiceId     String
+  blockDefinitionId String
+  templateBlockId   String?     // Origen del bloque (para rastreo y restauración)
+  title             String
+  content           String      @db.Text
+  contentShort      String?
+  isActive          Boolean     @default(true)
+  isHighlighted     Boolean     @default(false)
+  isEdited          Boolean     @default(false)  // true si el agente modificó el contenido base
+  displayMode       DisplayMode @default(FULL)
+  sortOrder         Int         @default(0)
+  createdAt         DateTime    @default(now())
+  updatedAt         DateTime    @updatedAt
+
+  // Relations
+  tripService     TripService      @relation(fields: [tripServiceId], references: [id])
+  blockDefinition BlockDefinition  @relation(fields: [blockDefinitionId], references: [id])
+  templateBlock   TemplateBlock?   @relation(fields: [templateBlockId], references: [id])
+
+  @@map("service_blocks")
+}
+
+enum DisplayMode {
+  FULL
+  SUMMARY
+  HIDDEN
+}
+
+/// Documento final generado — cada exportación crea una nueva versión
+model Itinerary {
+  id             String         @id @default(uuid())
+  tripId         String
+  version        Int            @default(1)
+  title          String
+  subtitle       String?
+  coverImageUrl  String?
+  theme          ItineraryTheme @default(CLASSIC)
+  language       String         @default("es")
+  includeCover   Boolean        @default(true)
+  includeSummary Boolean        @default(true)
+  includeTips    Boolean        @default(true)
+  customMessage  String?        @db.Text
+  generatedAt    DateTime       @default(now())
+  pdfUrl         String?
+  isPublished    Boolean        @default(false)
+  publicToken    String?        @unique  // Token para portal del pasajero
+  expiresAt      DateTime?
+
+  // Relations
+  trip Trip @relation(fields: [tripId], references: [id])
+
+  @@map("itineraries")
+}
+
+enum ItineraryTheme {
+  CLASSIC
+  MODERN
+  BOLD
+  MINIMAL
+}
