@@ -101,13 +101,14 @@ export async function GET(
       generatedAt: new Date(),
     })
 
-    const buffer = await renderToBuffer(doc)
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const buffer = await renderToBuffer(doc as any)
 
     const fileName = `${trip.name
       .replace(/[^a-z0-9]/gi, "_")
       .toLowerCase()}_itinerario.pdf`
 
-    return new NextResponse(buffer, {
+    return new NextResponse(buffer as unknown as BodyInit, {
       status: 200,
       headers: {
         "Content-Type": "application/pdf",

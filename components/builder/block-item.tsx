@@ -13,28 +13,30 @@ import { Textarea } from "@/components/ui/textarea"
 import { Input } from "@/components/ui/input"
 import { cn } from "@/lib/utils"
 
-type BlockItemProps = {
-  block: {
-    id: string
-    title: string
-    content: string
-    contentShort: string | null
-    isActive: boolean
-    isHighlighted: boolean
-    isEdited: boolean
-    displayMode: "FULL" | "SUMMARY" | "HIDDEN"
-    sortOrder: number
-    blockDefinition: {
-      code: string
-      name: string
-      icon: string | null
-    }
-    templateBlockId: string | null
+type BlockData = {
+  id: string
+  title: string
+  content: string
+  contentShort: string | null
+  isActive: boolean
+  isHighlighted: boolean
+  isEdited: boolean
+  displayMode: "FULL" | "SUMMARY" | "HIDDEN"
+  sortOrder: number
+  blockDefinition: {
+    code: string
+    name: string
+    icon: string | null
   }
+  templateBlockId: string | null
+}
+
+type BlockItemProps = {
+  block: BlockData
   moduleColor: string
   tripId: string
   serviceId: string
-  onUpdate: (blockId: string, data: Partial<typeof block>) => void
+  onUpdate: (blockId: string, data: Partial<BlockData>) => void
 }
 
 export function BlockItem({ block, moduleColor, tripId, serviceId, onUpdate }: BlockItemProps) {

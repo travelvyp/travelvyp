@@ -37,7 +37,7 @@ type ServiceTemplate = {
 // ─────────────────────────────────────────────
 // Module icons mapping
 // ─────────────────────────────────────────────
-const ICONS: Record<string, React.ComponentType<{ className?: string }>> = {
+const ICONS: Record<string, React.ComponentType<{ className?: string; style?: React.CSSProperties }>> = {
   FLIGHT: Plane,
   HOTEL: Hotel,
   THEME_PARK: FerrisWheel,

@@ -2,7 +2,13 @@
 
 const nextConfig = {
   experimental: {
-    serverExternalPackages: ["@prisma/client", "bcryptjs", "pdfkit"],
+    serverComponentsExternalPackages: ["@prisma/client", "prisma", "bcryptjs", "@react-pdf/renderer"],
+  },
+  images: {
+    remotePatterns: [
+      { protocol: "https", hostname: "**.supabase.co" },
+      { protocol: "https", hostname: "images.unsplash.com" },
+    ],
   },
 };
 
