@@ -65,7 +65,37 @@ async function main() {
     },
   });
 
-  console.log("  ✓ 4 módulos creados\n");
+  await prisma.moduleType.upsert({
+    where: { code: "TRANSFER" },
+    update: {},
+    create: { code: "TRANSFER", name: "Traslado", icon: "Bus", colorAccent: "#8B5CF6", sortOrder: 5 },
+  });
+
+  await prisma.moduleType.upsert({
+    where: { code: "INSURANCE" },
+    update: {},
+    create: { code: "INSURANCE", name: "Seguro", icon: "Shield", colorAccent: "#EF4444", sortOrder: 6 },
+  });
+
+  await prisma.moduleType.upsert({
+    where: { code: "TICKET" },
+    update: {},
+    create: { code: "TICKET", name: "Ticket / Actividad", icon: "Ticket", colorAccent: "#F59E0B", sortOrder: 7 },
+  });
+
+  await prisma.moduleType.upsert({
+    where: { code: "EXCURSION" },
+    update: {},
+    create: { code: "EXCURSION", name: "Excursion", icon: "Compass", colorAccent: "#06B6D4", sortOrder: 8 },
+  });
+
+  await prisma.moduleType.upsert({
+    where: { code: "OTHER" },
+    update: {},
+    create: { code: "OTHER", name: "Otro", icon: "Package", colorAccent: "#6B7280", sortOrder: 9 },
+  });
+
+  console.log("  ✓ 9 modulos creados\n");
 
   // ============================================================
   // 2. BLOCK DEFINITIONS — VUELOS
@@ -800,25 +830,19 @@ async function main() {
   });
 
   console.log("  ✓ Agencia TravelVYP creada");
-  console.log("  ✓ Usuario admin creado: pablo@travelvyp.com / travelvyp2024");
+  console.log("  Usuario admin creado: pablo@travelvyp.com / travelvyp2024");
 
-  // ============================================================
-  // RESUMEN
-  // ============================================================
-  console.log("\n✅ Seed completado exitosamente!");
-  console.log("─────────────────────────────────────");
-  console.log(`  Módulos:          4`);
-  console.log(`  Block Definitions: ${flightBlocks.length + hotelBlocks.length + parkBlocks.length + carBlocks.length}`);
-  console.log(`  Service Templates: 5`);
-  console.log(`  Agencias:         1`);
-  console.log(`  Usuarios:         1`);
-  console.log("─────────────────────────────────────");
-  console.log("\n🚀 Listo para desarrollar TravelVYP!\n");
+  console.log("\n Seed completado exitosamente!");
+  console.log("---");
+  console.log("  Modulos:           9");
+  console.log("  Agencias:          1");
+  console.log("  Usuarios:          1");
+  console.log("---\n");
 }
 
 main()
   .catch((e) => {
-    console.error("❌ Error en el seed:", e);
+    console.error("Error en el seed:", e);
     process.exit(1);
   })
   .finally(async () => { await prisma.$disconnect() })
