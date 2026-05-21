@@ -276,7 +276,7 @@ export function AddServiceWizard({ tripId }: { tripId: string }) {
     }
 
     const service = await res.json()
-    router.push(`/dashboard/trips/${tripId}/services/${service.id}`)
+    router.push(`/trips/${tripId}/services/${service.id}`)
     router.refresh()
   }
 

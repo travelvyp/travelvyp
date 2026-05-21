@@ -20,11 +20,11 @@ import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 
 const navItems = [
-  { href: "/dashboard", icon: LayoutDashboard, label: "Dashboard" },
-  { href: "/dashboard/trips", icon: Plane, label: "Mis Viajes" },
-  { href: "/dashboard/passengers", icon: Users, label: "Pasajeros" },
-  { href: "/dashboard/templates", icon: BookTemplate, label: "Templates" },
-  { href: "/dashboard/settings", icon: Settings, label: "Configuración" },
+  { href: "/trips", icon: LayoutDashboard, label: "Dashboard" },
+  { href: "/trips", icon: Plane, label: "Mis Viajes" },
+  { href: "/passengers", icon: Users, label: "Pasajeros" },
+  { href: "/templates", icon: BookTemplate, label: "Templates" },
+  { href: "/settings", icon: Settings, label: "Configuración" },
 ]
 
 const MODULE_ICONS: Record<string, React.ComponentType<{ className?: string }>> = {
@@ -117,7 +117,7 @@ export function Sidebar({ agencyName, userName, activeTrip }: SidebarProps) {
                   {activeTrip.services.map((service) => {
                     const Icon = MODULE_ICONS[service.moduleTypeCode] || Plane
                     const colorClass = MODULE_COLORS[service.moduleTypeCode] || "text-slate-500"
-                    const href = `/dashboard/trips/${activeTrip.id}/services/${service.id}`
+                    const href = `/trips/${activeTrip.id}/services/${service.id}`
                     return (
                       <Link
                         key={service.id}
@@ -139,7 +139,7 @@ export function Sidebar({ agencyName, userName, activeTrip }: SidebarProps) {
 
               {/* Add service */}
               <Link
-                href={`/dashboard/trips/${activeTrip.id}/services/new`}
+                href={`/trips/${activeTrip.id}/services/new`}
                 className="flex items-center gap-1.5 text-xs text-blue-600 hover:text-blue-700 font-medium transition-colors"
               >
                 <Plus className="h-3.5 w-3.5" />
@@ -153,8 +153,8 @@ export function Sidebar({ agencyName, userName, activeTrip }: SidebarProps) {
         <nav className="p-2 space-y-0.5">
           {navItems.map(({ href, icon: Icon, label }) => {
             const isActive =
-              href === "/dashboard"
-                ? pathname === "/dashboard"
+              href === "/trips"
+                ? pathname === "/trips"
                 : pathname.startsWith(href)
             return (
               <Link

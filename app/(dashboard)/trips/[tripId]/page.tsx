@@ -74,7 +74,7 @@ export default async function TripDetailPage({
     <div className="p-8 max-w-5xl mx-auto">
       {/* Back */}
       <Link
-        href="/dashboard/trips"
+        href="/trips"
         className="inline-flex items-center gap-2 text-sm text-slate-500 hover:text-slate-900 transition-colors mb-6"
       >
         <ArrowLeft className="h-4 w-4" />
@@ -125,7 +125,7 @@ export default async function TripDetailPage({
               )}
             </h2>
             <Button asChild size="sm">
-              <Link href={`/dashboard/trips/${trip.id}/services/new`}>
+              <Link href={`/trips/${trip.id}/services/new`}>
                 <Plus className="h-4 w-4" />
                 Agregar
               </Link>
@@ -138,7 +138,7 @@ export default async function TripDetailPage({
                 No hay servicios todavía. Agregá el primer servicio al viaje.
               </p>
               <Button asChild variant="outline" size="sm">
-                <Link href={`/dashboard/trips/${trip.id}/services/new`}>
+                <Link href={`/trips/${trip.id}/services/new`}>
                   <Plus className="h-4 w-4" />
                   Agregar servicio
                 </Link>
@@ -156,7 +156,7 @@ export default async function TripDetailPage({
                 return (
                   <Link
                     key={service.id}
-                    href={`/dashboard/trips/${trip.id}/services/${service.id}`}
+                    href={`/trips/${trip.id}/services/${service.id}`}
                     className="group flex items-center gap-4 bg-white border border-slate-200 rounded-xl p-4 hover:border-slate-300 hover:shadow-sm transition-all"
                   >
                     {/* Module color indicator */}
@@ -206,7 +206,7 @@ export default async function TripDetailPage({
             <div className="flex items-center justify-between mb-3">
               <h2 className="font-semibold text-slate-900">Pasajeros</h2>
               <Button asChild size="sm" variant="ghost">
-                <Link href={`/dashboard/trips/${trip.id}/passengers`}>
+                <Link href={`/trips/${trip.id}/passengers`}>
                   <Plus className="h-4 w-4" />
                 </Link>
               </Button>
@@ -217,7 +217,7 @@ export default async function TripDetailPage({
                 <Users className="h-8 w-8 text-slate-300 mx-auto mb-2" />
                 <p className="text-xs text-slate-400 mb-2">Sin pasajeros</p>
                 <Button asChild size="sm" variant="outline">
-                  <Link href={`/dashboard/trips/${trip.id}/passengers`}>
+                  <Link href={`/trips/${trip.id}/passengers`}>
                     Agregar
                   </Link>
                 </Button>

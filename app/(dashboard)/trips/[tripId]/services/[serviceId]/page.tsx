@@ -110,7 +110,7 @@ export default async function ServiceDetailPage({
     <div className="p-8 max-w-3xl mx-auto">
       {/* Back */}
       <Link
-        href={`/dashboard/trips/${service.trip.id}`}
+        href={`/trips/${service.trip.id}`}
         className="inline-flex items-center gap-2 text-sm text-slate-500 hover:text-slate-900 transition-colors mb-6"
       >
         <ArrowLeft className="h-4 w-4" />
@@ -147,7 +147,7 @@ export default async function ServiceDetailPage({
           </div>
 
           <Button variant="outline" size="sm" asChild>
-            <Link href={`/dashboard/trips/${params.tripId}/services/${params.serviceId}/edit`}>
+            <Link href={`/trips/${params.tripId}/services/${params.serviceId}/edit`}>
               <Edit3 className="h-4 w-4" />
               Editar datos
             </Link>

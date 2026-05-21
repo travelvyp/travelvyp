@@ -64,14 +64,14 @@ export default function NewTripPage() {
     }
 
     const trip = await res.json()
-    router.push(`/dashboard/trips/${trip.id}`)
+    router.push(`/trips/${trip.id}`)
   }
 
   return (
     <div className="p-8 max-w-2xl mx-auto">
       {/* Back */}
       <Link
-        href="/dashboard/trips"
+        href="/trips"
         className="inline-flex items-center gap-2 text-sm text-slate-500 hover:text-slate-900 transition-colors mb-8"
       >
         <ArrowLeft className="h-4 w-4" />
@@ -211,7 +211,7 @@ export default function NewTripPage() {
             )}
           </Button>
           <Button type="button" variant="ghost" asChild>
-            <Link href="/dashboard/trips">Cancelar</Link>
+            <Link href="/trips">Cancelar</Link>
           </Button>
         </div>
       </form>

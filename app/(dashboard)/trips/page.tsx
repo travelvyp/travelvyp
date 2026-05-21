@@ -54,7 +54,7 @@ export default async function TripsPage() {
           </p>
         </div>
         <Button asChild>
-          <Link href="/dashboard/trips/new">
+          <Link href="/trips/new">
             <Plus className="h-4 w-4" />
             Nuevo viaje
           </Link>
@@ -74,7 +74,7 @@ export default async function TripsPage() {
             Cada viaje contiene los servicios, pasajeros e itinerario de una experiencia de viaje.
           </p>
           <Button asChild>
-            <Link href="/dashboard/trips/new">
+            <Link href="/trips/new">
               <Plus className="h-4 w-4" />
               Crear primer viaje
             </Link>
@@ -96,7 +96,7 @@ export default async function TripsPage() {
             return (
               <Link
                 key={trip.id}
-                href={`/dashboard/trips/${trip.id}`}
+                href={`/trips/${trip.id}`}
                 className="group bg-white border border-slate-200 rounded-xl p-5 hover:border-blue-300 hover:shadow-md transition-all"
               >
                 {/* Header */}
