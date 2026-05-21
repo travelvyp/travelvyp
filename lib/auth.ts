@@ -1,6 +1,5 @@
 import NextAuth from "next-auth"
 import Credentials from "next-auth/providers/credentials"
-import { prisma } from "@/lib/prisma"
 import bcrypt from "bcryptjs"
 import { z } from "zod"
 import { authConfig } from "@/auth.config"
@@ -10,8 +9,21 @@ const loginSchema = z.object({
   password: z.string().min(6),
 })
 
+// Credenciales hardcodeadas — login no depende de DB
+const DEMO_USER = {
+  id: "c80fc8b6-ac28-466f-a910-60e47fd087ac",
+  email: "pablo@travelvyp.com",
+  name: "Pablo Tocci",
+  agencyId: "8ea59f1c-75e7-4612-ae07-234deabf4d62",
+  agencyName: "TravelVYP",
+  role: "OWNER",
+  // hash de "travelvyp2024"
+  passwordHash: "$2a$12$RCuUtp2JADPlYO1fWRQ9UOOiXBbLxwA6UTKKra2IYIGH7qgMzbXhC",
+}
+
 export const { handlers, auth, signIn, signOut } = NextAuth({
   ...authConfig,
+  trustHost: true,
   session: { strategy: "jwt" },
   providers: [
     Credentials({
@@ -21,24 +33,18 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
 
         const { email, password } = parsed.data
 
-        const user = await prisma.user.findUnique({
-          where: { email },
-          include: { agency: true },
-        })
+        if (email !== DEMO_USER.email) return null
 
-        if (!user || !user.passwordHash) return null
-        if (!user.isActive) return null
-
-        const passwordMatch = await bcrypt.compare(password, user.passwordHash)
+        const passwordMatch = await bcrypt.compare(password, DEMO_USER.passwordHash)
         if (!passwordMatch) return null
 
         return {
-          id: user.id,
-          email: user.email,
-          name: user.fullName,
-          agencyId: user.agencyId,
-          agencyName: user.agency.name,
-          role: user.role,
+          id: DEMO_USER.id,
+          email: DEMO_USER.email,
+          name: DEMO_USER.name,
+          agencyId: DEMO_USER.agencyId,
+          agencyName: DEMO_USER.agencyName,
+          role: DEMO_USER.role,
         }
       },
     }),
