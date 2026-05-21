@@ -12,6 +12,7 @@ import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
 import { Input } from "@/components/ui/input"
 import { cn } from "@/lib/utils"
+import { apiPath } from "@/lib/api"
 
 type BlockData = {
   id: string
@@ -62,7 +63,7 @@ export function BlockItem({ block, moduleColor, tripId, serviceId, onUpdate }: B
 
   async function patchBlock(data: Record<string, unknown>) {
     const res = await fetch(
-      `/api/trips/${tripId}/services/${serviceId}/blocks/${block.id}`,
+      apiPath(`/api/trips/${tripId}/services/${serviceId}/blocks/${block.id}`),
       {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },

@@ -12,6 +12,7 @@ import {
   Loader2, Check, Layers, MapPin
 } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { apiPath } from "@/lib/api"
 
 // ─────────────────────────────────────────────
 // Types
@@ -226,7 +227,7 @@ export function AddServiceWizard({ tripId }: { tripId: string }) {
 
   // Load modules
   useEffect(() => {
-    fetch("/api/modules").then(r => r.json()).then(setModules)
+    fetch(apiPath("/api/modules")).then(r => r.json()).then(setModules)
   }, [])
 
   // Load templates when module selected
@@ -263,7 +264,7 @@ export function AddServiceWizard({ tripId }: { tripId: string }) {
       internalNotes: internalNotes || undefined,
     }
 
-    const res = await fetch(`/api/trips/${tripId}/services`, {
+    const res = await fetch(apiPath(`/api/trips/${tripId}/services`), {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload),

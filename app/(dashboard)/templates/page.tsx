@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react"
 import { Search, BookTemplate, Loader2, Plane, Hotel, FerrisWheel, Car, Globe } from "lucide-react"
 import { Input } from "@/components/ui/input"
+import { apiPath } from "@/lib/api"
 import { Badge } from "@/components/ui/badge"
 
 type Template = {
@@ -47,13 +48,13 @@ export default function TemplatesPage() {
     const params = new URLSearchParams()
     if (q) params.set("q", q)
     if (moduleTypeId) params.set("moduleTypeId", moduleTypeId)
-    const res = await fetch(`/api/templates?${params}`)
+    const res = await fetch(apiPath(`/api/templates?${params}`))
     if (res.ok) setTemplates(await res.json())
     setIsLoading(false)
   }
 
   async function loadModules() {
-    const res = await fetch("/api/modules")
+    const res = await fetch(apiPath("/api/modules"))
     if (res.ok) setModules(await res.json())
   }
 

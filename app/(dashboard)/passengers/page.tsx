@@ -22,6 +22,7 @@ import {
 } from "@/components/ui/select"
 import { Textarea } from "@/components/ui/textarea"
 import { Plus, Search, Users, Loader2, Mail, Phone } from "lucide-react"
+import { apiPath } from "@/lib/api"
 
 type Passenger = {
   id: string
@@ -65,7 +66,7 @@ export default function PassengersPage() {
 
   async function loadPassengers(q?: string) {
     setIsLoading(true)
-    const url = q ? `/api/passengers?q=${encodeURIComponent(q)}` : "/api/passengers"
+    const url = q ? apiPath(`/api/passengers?q=${encodeURIComponent(q)}`) : apiPath("/api/passengers")
     const res = await fetch(url)
     if (res.ok) setPassengers(await res.json())
     setIsLoading(false)
@@ -92,7 +93,7 @@ export default function PassengersPage() {
     setIsSaving(true)
     setFormError(null)
 
-    const res = await fetch("/api/passengers", {
+    const res = await fetch(apiPath("/api/passengers"), {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(form),

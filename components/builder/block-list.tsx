@@ -18,6 +18,7 @@ import {
 } from "@dnd-kit/sortable"
 import { restrictToVerticalAxis } from "@dnd-kit/modifiers"
 import { BlockItem } from "./block-item"
+import { apiPath } from "@/lib/api"
 
 type Block = {
   id: string
@@ -72,7 +73,7 @@ export function BlockList({ initialBlocks, moduleColor, tripId, serviceId }: Blo
     // Persist new sortOrders in batch
     await Promise.all(
       reordered.map((block, index) =>
-        fetch(`/api/trips/${tripId}/services/${serviceId}/blocks/${block.id}`, {
+        fetch(apiPath(`/api/trips/${tripId}/services/${serviceId}/blocks/${block.id}`), {
           method: "PATCH",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ sortOrder: index }),

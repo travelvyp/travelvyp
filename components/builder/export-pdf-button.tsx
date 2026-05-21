@@ -3,6 +3,7 @@
 import { useState } from "react"
 import { Download, Loader2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { apiPath } from "@/lib/api"
 
 type ExportPdfButtonProps = {
   tripId: string
@@ -14,13 +15,12 @@ export function ExportPdfButton({ tripId }: ExportPdfButtonProps) {
   async function handleExport() {
     setLoading(true)
     try {
-      const res = await fetch(`/api/trips/${tripId}/pdf`)
+      const res = await fetch(apiPath(`/api/trips/${tripId}/pdf`))
       if (!res.ok) throw new Error("Error al generar PDF")
 
       const blob = await res.blob()
       const url = URL.createObjectURL(blob)
 
-      // Get filename from Content-Disposition header
       const disposition = res.headers.get("Content-Disposition")
       const match = disposition?.match(/filename="(.+)"/)
       const filename = match?.[1] || "itinerario.pdf"

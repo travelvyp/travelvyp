@@ -4,6 +4,7 @@ import { useState, useEffect, use } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
 import { ArrowLeft, Plus, Search, Users, Loader2, X, Check } from "lucide-react"
+import { apiPath } from "@/lib/api"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
@@ -49,8 +50,8 @@ export default function TripPassengersPage({
   async function loadData(q?: string) {
     setIsLoading(true)
     const [tpRes, pRes] = await Promise.all([
-      fetch(`/api/trips/${tripId}/passengers`),
-      fetch(q ? `/api/passengers?q=${encodeURIComponent(q)}` : "/api/passengers"),
+      fetch(apiPath(`/api/trips/${tripId}/passengers`)),
+      fetch(q ? apiPath(`/api/passengers?q=${encodeURIComponent(q)}`) : apiPath("/api/passengers")),
     ])
     if (tpRes.ok) setTripPassengers(await tpRes.json())
     if (pRes.ok) setAllPassengers(await pRes.json())
@@ -69,7 +70,7 @@ export default function TripPassengersPage({
   async function handleAdd(passengerId: string) {
     setAdding(passengerId)
     const isFirst = tripPassengers.length === 0
-    const res = await fetch(`/api/trips/${tripId}/passengers`, {
+    const res = await fetch(apiPath(`/api/trips/${tripId}/passengers`), {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ passengerId, role: isFirst ? "LEAD" : "COMPANION" }),
@@ -84,7 +85,7 @@ export default function TripPassengersPage({
   async function handleRemove(passengerId: string) {
     setRemoving(passengerId)
     const res = await fetch(
-      `/api/trips/${tripId}/passengers?passengerId=${passengerId}`,
+      apiPath(`/api/trips/${tripId}/passengers?passengerId=${passengerId}`),
       { method: "DELETE" }
     )
     if (res.ok) {

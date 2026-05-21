@@ -1,6 +1,7 @@
 /** @type {import('next').NextConfig} */
 
 const nextConfig = {
+  basePath: "/itinerario",
   experimental: {
     serverComponentsExternalPackages: ["@prisma/client", "prisma", "bcryptjs", "@react-pdf/renderer"],
   },

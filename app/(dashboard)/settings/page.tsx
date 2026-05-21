@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react"
 import { Save, User, Building2, Shield, CheckCircle2 } from "lucide-react"
+import { apiPath } from "@/lib/api"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -37,7 +38,7 @@ export default function SettingsPage() {
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
-    fetch("/api/settings")
+    fetch(apiPath("/api/settings"))
       .then((r) => r.json())
       .then((d) => {
         setData(d)
@@ -54,7 +55,7 @@ export default function SettingsPage() {
     setError(null)
     setSaved(false)
 
-    const res = await fetch("/api/settings", {
+    const res = await fetch(apiPath("/api/settings"), {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ fullName, email, agencyName }),
