@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { Save, User, Building2, Shield, CheckCircle2 } from "lucide-react"
+import { Save, User, Building2, Shield, CheckCircle2, AlertCircle, Loader2, RefreshCw } from "lucide-react"
 import { apiPath } from "@/lib/api"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -21,10 +21,10 @@ type SettingsData = {
 }
 
 const PLAN_LABELS: Record<string, string> = {
-  FREE: "Free",
-  STARTER: "Starter",
-  PRO: "Pro",
-  ENTERPRISE: "Enterprise",
+  FREE: "Free", STARTER: "Starter", PRO: "Pro", ENTERPRISE: "Enterprise",
+}
+const ROLE_LABELS: Record<string, string> = {
+  OWNER: "Propietario", ADMIN: "Administrador", AGENT: "Agente", VIEWER: "Solo lectura",
 }
 
 export default function SettingsPage() {
@@ -33,53 +33,75 @@ export default function SettingsPage() {
   const [email, setEmail] = useState("")
   const [agencyName, setAgencyName] = useState("")
   const [loading, setLoading] = useState(true)
+  const [loadError, setLoadError] = useState(false)
   const [saving, setSaving] = useState(false)
   const [saved, setSaved] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
-  useEffect(() => {
-    fetch(apiPath("/api/settings"))
-      .then((r) => r.json())
-      .then((d) => {
-        setData(d)
-        setFullName(d.fullName)
-        setEmail(d.email)
-        setAgencyName(d.agency.name)
-        setLoading(false)
-      })
-  }, [])
+  async function loadData() {
+    setLoading(true)
+    setLoadError(false)
+    try {
+      const res = await fetch(apiPath("/api/settings"))
+      if (!res.ok) throw new Error("Error al cargar configuracion")
+      const d: SettingsData = await res.json()
+      if (!d || !d.agency) throw new Error("Datos incompletos")
+      setData(d)
+      setFullName(d.fullName || "")
+      setEmail(d.email || "")
+      setAgencyName(d.agency.name || "")
+    } catch {
+      setLoadError(true)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  useEffect(() => { loadData() }, [])
 
   async function handleSave(e: React.FormEvent) {
     e.preventDefault()
     setSaving(true)
     setError(null)
     setSaved(false)
-
-    const res = await fetch(apiPath("/api/settings"), {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ fullName, email, agencyName }),
-    })
-
-    const json = await res.json()
-
-    if (!res.ok) {
-      setError(json.error || "Error al guardar")
-    } else {
-      setSaved(true)
-      setTimeout(() => setSaved(false), 3000)
+    try {
+      const res = await fetch(apiPath("/api/settings"), {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ fullName, email, agencyName }),
+      })
+      const json = await res.json()
+      if (!res.ok) {
+        setError(json.error || "Error al guardar")
+      } else {
+        setSaved(true)
+        setTimeout(() => setSaved(false), 3000)
+      }
+    } catch {
+      setError("No se pudo conectar. Intenta de nuevo.")
+    } finally {
+      setSaving(false)
     }
-
-    setSaving(false)
   }
 
   if (loading) {
     return (
-      <div className="p-8 max-w-2xl mx-auto">
-        <div className="animate-pulse space-y-4">
-          <div className="h-6 bg-slate-200 rounded w-32"></div>
-          <div className="h-4 bg-slate-100 rounded w-64"></div>
-        </div>
+      <div className="p-8 max-w-2xl mx-auto flex items-center justify-center py-24">
+        <Loader2 className="h-6 w-6 animate-spin text-slate-400" />
+      </div>
+    )
+  }
+
+  if (loadError) {
+    return (
+      <div className="p-8 max-w-2xl mx-auto text-center py-24">
+        <AlertCircle className="h-8 w-8 text-red-400 mx-auto mb-3" />
+        <p className="text-slate-700 font-medium mb-1">No se pudo cargar la configuracion</p>
+        <p className="text-sm text-slate-400 mb-4">La base de datos puede estar iniciando. Intenta de nuevo.</p>
+        <Button variant="outline" onClick={loadData}>
+          <RefreshCw className="h-4 w-4" />
+          Reintentar
+        </Button>
       </div>
     )
   }
@@ -87,9 +109,9 @@ export default function SettingsPage() {
   return (
     <div className="p-8 max-w-2xl mx-auto">
       <div className="mb-8">
-        <h1 className="text-2xl font-bold text-slate-900">Configuración</h1>
+        <h1 className="text-2xl font-bold text-slate-900">Configuracion</h1>
         <p className="text-sm text-slate-500 mt-1">
-          Esta información aparece en los PDFs que generás para tus clientes.
+          Esta informacion aparece en los PDFs que generas para tus clientes.
         </p>
       </div>
 
@@ -107,23 +129,19 @@ export default function SettingsPage() {
               id="agencyName"
               value={agencyName}
               onChange={(e) => setAgencyName(e.target.value)}
-              placeholder="Ej: TravelVYP"
+              placeholder="TravelVYP"
             />
-            <p className="text-xs text-slate-400">
-              Aparece en el encabezado y pie de página del PDF.
-            </p>
+            <p className="text-xs text-slate-400">Aparece en el encabezado del PDF.</p>
           </div>
 
-          <div className="flex items-center justify-between pt-1">
+          <div className="flex items-center justify-between pt-1 text-sm">
             <div>
               <p className="text-xs text-slate-400">Plan actual</p>
-              <p className="text-sm font-semibold text-slate-700">
-                {PLAN_LABELS[data?.agency.plan || "FREE"]}
-              </p>
+              <p className="font-semibold text-slate-700">{PLAN_LABELS[data?.agency.plan || "FREE"]}</p>
             </div>
             <div>
               <p className="text-xs text-slate-400">Slug</p>
-              <p className="text-sm font-mono text-slate-500">{data?.agency.slug}</p>
+              <p className="font-mono text-slate-500">{data?.agency.slug}</p>
             </div>
           </div>
         </div>
@@ -141,11 +159,9 @@ export default function SettingsPage() {
               id="fullName"
               value={fullName}
               onChange={(e) => setFullName(e.target.value)}
-              placeholder="Ej: Pablo Tocci"
+              placeholder="Pablo Tocci"
             />
-            <p className="text-xs text-slate-400">
-              Aparece como "Preparado por" en la portada y en el contacto del PDF.
-            </p>
+            <p className="text-xs text-slate-400">Aparece como "Preparado por" en la portada del PDF.</p>
           </div>
 
           <div className="space-y-1.5">
@@ -155,36 +171,37 @@ export default function SettingsPage() {
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              placeholder="Ej: pablo@travelvyp.com"
+              placeholder="pablo@travelvyp.com"
             />
-            <p className="text-xs text-slate-400">
-              Se muestra en la sección de contacto del agente en el PDF.
-            </p>
+            <p className="text-xs text-slate-400">Se muestra en la seccion de contacto del PDF.</p>
           </div>
 
           <div className="flex items-center gap-2 pt-1">
             <Shield className="h-3.5 w-3.5 text-slate-300" />
             <p className="text-xs text-slate-400">
-              Rol: <span className="font-medium text-slate-600">{data?.role === "ADMIN" ? "Administrador" : data?.role === "AGENT" ? "Agente" : data?.role}</span>
+              Rol: <span className="font-medium text-slate-600">{ROLE_LABELS[data?.role || "AGENT"] || data?.role}</span>
             </p>
           </div>
         </div>
 
         {/* Footer */}
         <div className="flex items-center justify-between">
-          {error && (
-            <p className="text-sm text-red-500">{error}</p>
-          )}
-          {saved && (
-            <div className="flex items-center gap-1.5 text-green-600 text-sm">
-              <CheckCircle2 className="h-4 w-4" />
-              Guardado correctamente
-            </div>
-          )}
-          {!error && !saved && <div />}
-
+          <div>
+            {error && (
+              <div className="flex items-center gap-1.5 text-sm text-red-500">
+                <AlertCircle className="h-4 w-4" />
+                {error}
+              </div>
+            )}
+            {saved && (
+              <div className="flex items-center gap-1.5 text-sm text-green-600">
+                <CheckCircle2 className="h-4 w-4" />
+                Guardado correctamente
+              </div>
+            )}
+          </div>
           <Button type="submit" disabled={saving}>
-            <Save className="h-4 w-4" />
+            {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
             {saving ? "Guardando..." : "Guardar cambios"}
           </Button>
         </div>

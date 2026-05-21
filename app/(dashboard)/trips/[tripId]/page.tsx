@@ -105,7 +105,7 @@ export default async function TripDetailPage({
         </div>
         <div className="flex items-center gap-2">
           <a
-            href={`/api/trips/${trip.id}/pdf`}
+            href={`/itinerario/api/trips/${trip.id}/pdf`}
             target="_blank"
             rel="noopener noreferrer"
             className="inline-flex items-center gap-2 h-9 px-3 rounded-md border border-slate-200 bg-white text-sm font-medium text-slate-700 hover:bg-slate-50 transition-colors"
