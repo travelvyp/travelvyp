@@ -362,4 +362,8 @@ model Itinerary {
 }
 
 enum ItineraryTheme {
-  CL
+  CLASSIC
+  MODERN
+  BOLD
+  MINIMAL
+}
