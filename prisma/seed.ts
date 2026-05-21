@@ -788,13 +788,14 @@ async function main() {
 
   const adminUser = await prisma.user.upsert({
     where: { email: "pablo@travelvyp.com" },
-    update: {},
+    update: { passwordHash, isActive: true },
     create: {
       agencyId: agency.id,
       email: "pablo@travelvyp.com",
       fullName: "Pablo Tocci",
       role: "OWNER",
       passwordHash,
+      isActive: true,
     },
   });
 

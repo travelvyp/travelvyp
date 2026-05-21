@@ -1,7 +1,5 @@
 import type { NextAuthConfig } from "next-auth"
 
-// Edge-safe auth config — NO imports de Prisma, bcrypt ni módulos Node.js
-// Este archivo es importado por middleware.ts (que corre en Edge runtime)
 export const authConfig = {
   pages: {
     signIn: "/login",
@@ -13,15 +11,15 @@ export const authConfig = {
 
       const isPublicRoute =
         nextUrl.pathname.startsWith("/v/") ||
-        nextUrl.pathname.startsWith("/login") ||
-        nextUrl.pathname.startsWith("/register")
+        nextUrl.pathname === "/login" ||
+        nextUrl.pathname === "/register"
 
       if (!isLoggedIn && !isPublicRoute) {
-        return false // NextAuth redirige a pages.signIn automáticamente
+        return false
       }
 
       if (isLoggedIn && (nextUrl.pathname === "/login" || nextUrl.pathname === "/register")) {
-        return Response.redirect(new URL("/dashboard", nextUrl))
+        return Response.redirect(new URL("/trips", nextUrl))
       }
 
       return true
