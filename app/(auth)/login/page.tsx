@@ -1,15 +1,13 @@
 "use client"
 
 import { useState } from "react"
-import { signIn } from "next-auth/react"
-import { useRouter } from "next/navigation"
+import { loginAction } from "@/app/actions"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Loader2, Eye, EyeOff } from "lucide-react"
 
 export default function LoginPage() {
-  const router = useRouter()
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [showPassword, setShowPassword] = useState(false)
@@ -21,27 +19,18 @@ export default function LoginPage() {
     setIsLoading(true)
     setError(null)
 
-    const result = await signIn("credentials", {
-      email,
-      password,
-      redirect: false,
-    })
+    const result = await loginAction(email, password)
 
     if (result?.error) {
-      setError("Email o contraseña incorrectos.")
+      setError(result.error)
       setIsLoading(false)
-      return
     }
-
-    router.push("/trips")
-    router.refresh()
+    // Si no hay error, el server action redirigió a /trips automáticamente
   }
 
   return (
     <div className="space-y-8">
-      {/* Header */}
       <div className="space-y-2">
-        {/* Mobile logo */}
         <div className="flex items-center gap-2 mb-6 lg:hidden">
           <div className="w-7 h-7 bg-blue-500 rounded-md flex items-center justify-center">
             <span className="text-white font-bold text-xs">TV</span>
@@ -56,7 +45,6 @@ export default function LoginPage() {
         </p>
       </div>
 
-      {/* Form */}
       <form onSubmit={handleSubmit} className="space-y-4">
         <div className="space-y-2">
           <Label htmlFor="email">Email</Label>
@@ -73,9 +61,7 @@ export default function LoginPage() {
         </div>
 
         <div className="space-y-2">
-          <div className="flex items-center justify-between">
-            <Label htmlFor="password">Contraseña</Label>
-          </div>
+          <Label htmlFor="password">Contraseña</Label>
           <div className="relative">
             <Input
               id="password"
@@ -115,7 +101,6 @@ export default function LoginPage() {
         </Button>
       </form>
 
-      {/* Demo credentials */}
       <div className="rounded-lg bg-blue-50 border border-blue-100 p-4 space-y-1">
         <p className="text-xs font-semibold text-blue-700 uppercase tracking-wide">Cuenta demo</p>
         <p className="text-sm text-blue-600 font-mono">pablo@travelvyp.com</p>
