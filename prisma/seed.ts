@@ -7,7 +7,16 @@
 import { PrismaClient } from "@prisma/client";
 import bcrypt from "bcryptjs";
 
-const prisma = new PrismaClient();
+// Seeds use direct connection (not pooler) to avoid PgBouncer limitations.
+// DIRECT_URL = Neon direct endpoint (no -pooler in hostname).
+// Falls back to DATABASE_URL if DIRECT_URL is not set.
+const prisma = new PrismaClient({
+  datasources: {
+    db: {
+      url: process.env.DIRECT_URL ?? process.env.DATABASE_URL,
+    },
+  },
+});
 
 async function main() {
   console.log("🌱 Iniciando seed de TravelVYP...\n");
@@ -3236,16 +3245,14 @@ async function main() {
   console.log("  Usuario admin creado: pablo@travelvyp.com / travelvyp2024");
 
   console.log("\n Seed completado exitosamente!");
-  console.log("---");
-  console.log("  Modulos:           9");
-  console.log("  Agencias:          1");
-  console.log("  Usuarios:          1");
-  console.log("---\n");
+  console.log("---")
+  console.log("  Modulos:           10")
+  console.log("  Templates:         ~49")
+  console.log("  Agencias:          1")
+  console.log("  Usuarios:          1")
+  console.log("---")
 }
 
 main()
-  .catch((e) => {
-    console.error("Error en el seed:", e);
-    process.exit(1);
-  })
+  .catch((e) => { console.error("Error en el seed:", e); process.exit(1) })
   .finally(async () => { await prisma.$disconnect() })
